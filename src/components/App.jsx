@@ -15,6 +15,21 @@ class App extends Component {
     filter: '',
   };
 
+  componentDidMount() {
+    const savedContacts = localStorage.getItem('contacts');
+    if (savedContacts) {
+      this.setState({
+        contacts: JSON.parse(savedContacts),
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.contacts !== this.state.contacts) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    }
+  }
+
   handleNameSubmit = e => {
     e.preventDefault();
     const form = e.target;
@@ -36,12 +51,21 @@ class App extends Component {
       number: userNumber,
     };
 
-    this.setState(prevState => ({
-      ...prevState,
-      contacts: [...prevState.contacts, newContact],
-    }));
+    this.setState(
+      prevState => ({
+        ...prevState,
+        contacts: [...prevState.contacts, newContact],
+      }),
+      () => {
+        this.saveContactsToLocalStorage();
+      }
+    );
 
     form.reset();
+  };
+
+  saveContactsToLocalStorage = () => {
+    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
   };
 
   handleFilter = e => {
